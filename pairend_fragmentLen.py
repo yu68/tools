@@ -24,7 +24,7 @@ def show_help():
   print >>sys.stderr,"    -x,--xlim          range for x axis: min_x, the left bound (default 0); max_x, the right bound (default 350)"
   print >>sys.stderr,"    -l,--lambda        covariance_factor lambda for KDE (default 0.25)"
   print >>sys.stderr,"    -n,--num           number of fragments to be processed for plotting"
-  print >>sys.stderr,"    -o,--output        the outpur figure file, can be format of png, pdf, ps, etc"
+  print >>sys.stderr,"    -o,--output        the output figure file, can be format of emf, eps, pdf, png, ps, raw, rgba, svg, svgz"
   print 
 
 Version="1.0"
