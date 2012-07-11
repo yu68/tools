@@ -1,8 +1,4 @@
-'''
-Usage:
-  python generateMAPfile.py chromInfo_hg18.txt cancer_indel_dup_inv.vcf > map_chain.txt 
 
-'''
 
 import sys
 import vcf
