@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #normalized by total_read_no/5000001
  
 import sys
