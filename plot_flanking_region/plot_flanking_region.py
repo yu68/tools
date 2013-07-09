@@ -1,14 +1,18 @@
+import matplotlib
+matplotlib.use('Agg')
 import numpy as np
 from xplib import TableIO
 import pysam
 from xplib.Annotation import Bed
 import sys,os,argparse
 import scipy.cluster.hierarchy as sch
+
 import pylab
 from scipy.cluster.vq import kmeans,vq
 import matplotlib.pyplot as plt
-import matplotlib
 from collections import Counter
+
+plt.ioff()
 
 def ParseArg():
     ''' This Function Parse the Argument '''
