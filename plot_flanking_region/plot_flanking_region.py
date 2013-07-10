@@ -131,14 +131,15 @@ def feature_scale(matrix):
     return matrix
 
 
-def heatmap_oneBam(collect,fig,xstart,xlen,cum_interval_n,leng):
+def heatmap_oneBam(collect,fig,xstart,xlen,cum_interval_n,leng,name):
     axmatrix=fig.add_axes([xstart,0.1,xlen,0.8])
     plt.register_cmap(name='cust_cmap', data=cdict)
     collect=np.minimum(collect,np.mean(collect)+3*np.std(collect)) # remove outlier with are extremely large
     im=axmatrix.matshow(collect,aspect='auto',origin='lower',cmap=plt.get_cmap('Reds'))
     axmatrix.set_xticks([])
     axmatrix.set_yticks([])
-        
+    axmatrix.set_title(name)
+    
     for n in cum_interval_n:
         axmatrix.axhline(y=n,color='black')
         
@@ -239,8 +240,8 @@ def main():
         
         j=0
         width=0.8/len(bam_names)
-        for name,collect in collects.items():
-            heatmap_oneBam(collect,fig,0.15+j*width,0.7*width,cum_interval_n,leng)
+        for name in collects.keys():
+            heatmap_oneBam(collects[name],fig,0.15+j*width,0.7*width,cum_interval_n,leng,name)
             j=j+1
         fig.savefig('heatmap_'+args.output)
 
