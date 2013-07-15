@@ -240,7 +240,7 @@ def main():
         
         j=0
         width=0.8/len(bam_names)
-        for name in collects.keys():
+        for name in bam_names:
             heatmap_oneBam(collects[name],fig,0.15+j*width,0.7*width,cum_interval_n,leng,name)
             j=j+1
         fig.savefig('heatmap_'+args.output)
