@@ -8,7 +8,10 @@ import sys,os,argparse
 import scipy.cluster.hierarchy as sch
 
 import pylab
+from Bio.Cluster import somcluster
 from scipy.cluster.vq import kmeans,vq
+import scipy.cluster.hierarchy as hier
+import scipy.spatial.distance as dist
 import matplotlib.pyplot as plt
 from collections import Counter
 
@@ -29,6 +32,7 @@ def ParseArg():
     p.add_argument('-n','--bamname',nargs='+',dest='bamnames',type=str,help="names for the bam files to be shown on the figure")
     p.add_argument('-N','--intervalname',nargs='+',dest='intervalnames',type=str,help='names for the bam files to be shown on the figure')
     p.add_argument('-w','--win_l',type=int,default=3,help='smooth window length for counts in each interval, (default:3, no smooth)')
+    p.add_argument('-m','--method_c',type=str,default='kmeans',help='clustering method for first heatmap, can be: kmeans, somcuster, hcluster[hcluster only for small size intervals]. default: kmeans')
     p.add_argument('-o','--output',type=str,default='test',help='suffix of output figure file,can be (pdf, eps, png,jpg,...) final will be average_* or heatmap_*')
     if len(sys.argv)==1:
         print >> sys.stderr, p.print_help()
@@ -70,6 +74,7 @@ def smooth(x,window_len=11,window='hanning'):
         return y[window_len:-window_len+1]
 
 
+# use center 50bp of the reads
 # use center 50bp of the reads
 def get_count(interval,bam,r,l,fl,direction=False,win_l=3):
     '''
@@ -219,9 +224,19 @@ def main():
                 H_counts=np.log(H_counts+1)
                 #H_counts=feature_scale(H_counts)
                 if k==0:
-                    centroids,_=kmeans(H_counts,5)
-                    idx,_=vq(H_counts,centroids)
-                    order[name]=[i[0] for i in sorted(enumerate(idx), key=lambda x:x[1])]
+                    if args.method_c=='kmeans':
+                        centroids,_=kmeans(H_counts,5)
+                        idx,_=vq(H_counts,centroids)
+                        order[name]=[i[0] for i in sorted(enumerate(idx), key=lambda x:x[1])]
+                    elif args.method_c=='somcluster':
+                        clusterid,_=somcluster(data=H_counts,nxgrid=5,nygrid=5)
+                        order[name] = np.lexsort((clusterid[:,1],clusterid[:,0]))
+                    elif args.method_c=='hcluster':
+                        distMatrix = dist.pdist(H_counts)
+                        distSquareMatrix = dist.squareform(distMatrix)
+                        linkageMatrix = hier.linkage(distSquareMatrix)
+                        dendro = hier.dendrogram(linkageMatrix)
+                        order[name] = dendro['leaves']
                     interval_n.append(H_counts.shape[0])
                 H_counts=H_counts[order[name],:]
                 collect.append(H_counts)                
@@ -261,9 +276,6 @@ def main():
         for i,name in enumerate(collect.keys()):
             col=matplotlib.cm.Paired((i+1)*1.0/(len(collect.keys())+2),1)
             plt.plot(np.array(range(-leng,leng,resol))+resol/2.0,collect[name],color=col)
-        pylab.legend(collect.keys(),loc='upper right')
-        plt.xlabel('Distance to center')
-        plt.ylabel('Average coverage for 5E7 reads')
         fig.savefig('average_'+args.output)
     
 
