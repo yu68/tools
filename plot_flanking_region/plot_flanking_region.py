@@ -165,7 +165,7 @@ def main():
     frag_l=args.frag_l
     # determin if intervals or bams is multiple
     if len(args.intervals)==1 and not args.intervalnames: 
-        interval_names=['interval']
+        interval_names=['i']
     else: 
         interval_names=args.intervalnames
 
@@ -260,6 +260,20 @@ def main():
             j=j+1
         fig.savefig('heatmap_'+args.output)
 
+        '''
+        # print clustering information for first bam
+        cluster_info=open("interval_with_cluster.txt",'w')
+        name=interval_names[-1]
+        intervals[name]=TableIO.parse(args.intervals[l],'bed')
+        n=0
+        for l in intervals[name]:
+            if 'random' in l.chr: continue
+            try:
+                print >>cluster_info,'\t'.join(str(f) for f in [l.chr,l.start,l.stop,idx[n]])
+            except:
+                print "Error: the number of intervals are not consistent" 
+            n=n+1
+        '''         
     # draw averge patterns
     if args.Average:
         print >> sys.stderr,"##  Start count reads"
@@ -278,6 +292,7 @@ def main():
             plt.plot(np.array(range(-leng,leng,resol))+resol/2.0,collect[name],color=col)
         fig.savefig('average_'+args.output)
     
+
 
 
 if __name__=="__main__":
