@@ -67,6 +67,7 @@ def Main():
 
     output.write(header+'\n')
     for interval in intervals:
+        if 'random' in interval.chrom: continue
         print_line='\t'.join (str(f) for f in [interval.chrom,interval.start,interval.end,interval.name,interval.score])
         for i in range(len(args.bams)):
             name=args.name[i]

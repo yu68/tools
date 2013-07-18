@@ -165,7 +165,7 @@ def main():
     frag_l=args.frag_l
     # determin if intervals or bams is multiple
     if len(args.intervals)==1 and not args.intervalnames: 
-        interval_names=['i']
+        interval_names=['interval']
     else: 
         interval_names=args.intervalnames
 
@@ -284,12 +284,18 @@ def main():
                     intervals[name]=TableIO.parse(args.intervals[0],'bed')
                 print >> sys.stderr, "  ## counting for bam["+nab+"] - interval["+name+"]"
                 H_counts=get_count(intervals[name],bams[nab],resol,leng,frag_l[k],args.direction,args.win_l)
-                collect[(nab,name)]=np.sum(H_counts,axis=0)/H_counts.shape[0]*5E7/read_numbers[nab]
+                if name=='interval':
+                    collect[nab]=np.sum(H_counts,axis=0)/H_counts.shape[0]*5E7/read_numbers[nab]
+                else:
+                    collect[(nab,name)]=np.sum(H_counts,axis=0)/H_counts.shape[0]*5E7/read_numbers[nab]
         
         fig=plt.figure()
         for i,name in enumerate(collect.keys()):
             col=matplotlib.cm.Paired((i+1)*1.0/(len(collect.keys())+2),1)
             plt.plot(np.array(range(-leng,leng,resol))+resol/2.0,collect[name],color=col)
+        pylab.legend(collect.keys(),loc='upper right')
+        plt.xlabel('Distance to center')
+        plt.ylabel('Average coverage for 5E7 reads')
         fig.savefig('average_'+args.output)
     
 
