@@ -1,4 +1,4 @@
-#Make venn diagram from GenomicRanges
+#make venn diagram from GenomicRanges
 #Author: Ying Wu daiyingw@gmail.com
 #Current Update: March 2013
 #License: ___ (still deciding)
@@ -15,7 +15,7 @@ peak2GRanges = function(bedfile, type="macs", skip=0) {
 
 	#The goal of this function is to convert peak caller output to GRanges
 	#bedfile is the name file that is peak caller output (typically a bed file)
-	
+
 	#type == "macs xls" #start pos +1, score -> -log?(fdr)
 	#type == "macs" #see below, BED6?
 	#type == "zinba" #read w/header=T, must convert score to >1, has self overlaps 
@@ -27,7 +27,7 @@ peak2GRanges = function(bedfile, type="macs", skip=0) {
 		# end=as.numeric(g1$end), names=g1$PeakID),
 		# strand=g1$strand, score=g1$Normalized.Tag.Count)
 	#careful of keeping elementmetadata the same
-	
+
 	#TODO: implement other types, keep in mind some have header
 	#	macs 2 and macs 1.4 might have different output
 	grgb = read.table(bedfile, sep="\t", skip=skip)
@@ -38,13 +38,13 @@ peak2GRanges = function(bedfile, type="macs", skip=0) {
 	grg
 	#self overlaps can be removed using reduce() but it would also get rid of metadata
 }
-	
+
 createResultMatrix = function(typ, fo) {
  
 	#generate result matrix (required for every venn diagram)
 	#results matrix has n columns where n is the number of sets being compared
 	#results matrix has nrow(fo) rows
-	
+
 	typlvl = levels(factor(typ)) #type (which GRanges) -> factor -> level
 	res = matrix(0, nrow=length(typ), ncol=length(typlvl)) #result matrix
 	colnames(res) = typlvl
@@ -70,7 +70,7 @@ extractOverlap = function(..., res, typ) {
 	if(length(list(...)) == 1) { argv = as.list(...) }
 	else { argv = list(...) }
 	#cat(paste("DEBUG: ",paste(argv, collapse=" "),"\n"))
-	
+
 	#TODO: input checking
 	if(length(argv) == 0) { stop("Must specify at least one set\n\tUsage: extractOverlap(1,2,res=res,typ=typ)") }
 	#if(length(argv) > ncol(res)) { stop("number of overlaps greater than sets in venn diagram") }
@@ -79,11 +79,11 @@ extractOverlap = function(..., res, typ) {
 		stop("Invalid set: ", paste(argv[!argv %in% colnames(res)], collapase=""), 
 		"\n\tpossible sets are: ", paste(colnames(res), collapase="")) 
 	}
-	
+
 	basecol = colnames(res) == argv[1] 
 	curtyp = typ == argv[1]
 	ret = NULL
-	
+
 	#must wrap w/as.matrix to account for case of 1 row
 	if(length(argv) == 1) { ret = apply(as.matrix(res[curtyp, !basecol] == 0), 1, all) } #unique to base
 	if(length(argv) == 2 && argv[1] == argv[2]) { #self overlap
@@ -91,7 +91,7 @@ extractOverlap = function(..., res, typ) {
 	}
 	#if(length(unique(argv)) != length(argv)) { warning("Duplicate set removed") }
 	argv = unique(argv) #get rid of duplicates (should not exist anyways)
-	
+
     #TODO: does not catch case where 3 elements all the same length(argv) == 3 && length(unique(argv)) == 1
     # Use == 0 instead of >= 1 because harder to deal with multiple overlaps with the latter
 	if(length(argv) >= 2 && argv[1] != argv[2]) { #everything else
@@ -140,14 +140,14 @@ readinGRanges = function(...) {
 	}
 	glg = GRangesList(tmp)
 	#glg = GRangesList(...) #gives error on elementMetadata colname mismatch
-	
+
 	if(length(glg) < 2) { stop("Need more ranges to compare") }
 	if(length(glg) > 4) { warning("only tested up to 5 ranges") } #this somewhere else
 	#typ = rep(2^(0:(length(glg)-1)),as.numeric(lapply(glg, length))) 
 	#fo = findOverlaps(c(g1.r, g2.r, g12.r, .ignoreElementMetadata=TRUE), ignoreSelf=T)
 	typ = rep(as.character(substitute(list(...)))[-1L], as.numeric(lapply(glg, length))) #since lapplay returns list
 	fo = findOverlaps(unlist(glg), ignoreSelf=T)
-	
+
 	res = createResultMatrix(typ, fo)
 	#cat(paste(c(paste(colnames(res), as.character(substitute(list(...)))[-1L],sep=" = "),""),collapse="\n"))	
 	cbind(typ,res)
@@ -194,7 +194,7 @@ createOverlapMatrix = function(res, typ) {
 	#  you can see that in the case of n=3, self is included in (1) as A-A
     #
     #This function makes heavy use of printOverlap which is described above
-	
+
 	n = ncol(res)
 	tf = factor(typ)
 	last_printed = n
@@ -202,7 +202,7 @@ createOverlapMatrix = function(res, typ) {
 	rownames(overlap) = 1:nrow(overlap) #needs initalization before assignment
 	colnames(overlap) = levels(tf)
 	current_row = 1
-	
+
 	for(i in n:0) {
 		#cat(paste("DEBUG: i=", i, "current_row =", current_row, "\n"))
 		if(i == n-1) { #special case: all overlap
@@ -250,7 +250,7 @@ createVenn = function(res, typ, overlap = NULL, name = NULL, weighted = FALSE, m
 	colnames(counter) = levels(tf)
 	current_row = 1
 	weight = 2^(0:(n-1))
-	
+
 	for(i in n:0) {
 		if(i == n-1) { 
 			counter[current_row,] = rep(2^n-1, n)

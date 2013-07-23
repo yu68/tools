@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 #Make venn diagram from GenomicRanges
 #Current Update: July 2013
-#License: ___ (still deciding)
 #Version: 0.1
 
 
@@ -19,7 +18,10 @@ parser <- ArgumentParser()
 # specify desired options
 parser$add_argument("files",nargs='+',help='bed files for Venn diagram')
 parser$add_argument("-n","--names",nargs='+',help='names shown on Venn diagram for each bed file (should be the same size as bed file numbers')
-parser$add_argument("-o","--output",nargs=1,default="output.pdf",help="output pdf file for venn diagram, if not specified, [default \"%(default)s\"]")
+parser$add_argument("-o","--output",nargs=1,default="output.pdf",help="output pdf file for venn diagram, if not specified, [default: \"%(default)s\"]")
+parser$add_argument("-w","--weighted",action='store_true',help="determine whether draw weighted venn diagram or not. default: False")
+parser$add_argument("-m","--minoverlap",type='integer',default=1,help='minimum overlap bps required to call overlaps [default: %(default)s]')
+
 
 
 
@@ -46,7 +48,7 @@ peak2GRanges = function(bedfile, type="macs", skip=0) {
 	#type==macs
 	grg = GRanges(seqnames = Rle(grgb[,1]), ranges = IRanges(start=as.numeric(grgb[,2]),
 		end=as.numeric(grgb[,3]), names=grgb[,4]),
-		strand=Rle("+"), score=grgb[,5])
+		strand=Rle("+"),score=grgb[,5])
 	grg
 	#self overlaps can be removed using reduce() but it would also get rid of metadata
 }
@@ -136,7 +138,7 @@ printOverlap = function(..., res, typ) {
 	arow
 }
 
-readinGRanges = function(...) {
+readinGRanges = function(..., minoverlap=1) {
 	#This is kind of ugly but neccessary to drop elementMetadata mismatches
 	tmp = list(...)
 	elmMd = lapply(tmp , function(x) names(elementMetadata(x)))
@@ -158,7 +160,7 @@ readinGRanges = function(...) {
 	#typ = rep(2^(0:(length(glg)-1)),as.numeric(lapply(glg, length))) 
 	#fo = findOverlaps(c(g1.r, g2.r, g12.r, .ignoreElementMetadata=TRUE), ignoreSelf=T)
 	typ = rep(as.character(substitute(list(...)))[-1L], as.numeric(lapply(glg, length))) #since lapplay returns list
-	fo = findOverlaps(unlist(glg), ignoreSelf=T)
+	fo = findOverlaps(unlist(glg), ignoreSelf=T, minoverlap=minoverlap)
 	
 	res = createResultMatrix(typ, fo)
 	#cat(paste(c(paste(colnames(res), as.character(substitute(list(...)))[-1L],sep=" = "),""),collapse="\n"))	
@@ -321,9 +323,9 @@ createVenn = function(res, typ, overlap = NULL, name = NULL, weighted = FALSE, m
     ## once you have 2 non-zero intersections, the scaling code will not work
 }
 
-makeVennRunall = function(...,weighted = FALSE) {
+makeVennRunall = function(...,weighted = FALSE,minoverlap=1) {
 	#suppressMessages(gc(verbose=FALSE)) #it likes to talkings
-	tmp = readinGRanges(...) #split tmp into res/typ
+	tmp = readinGRanges(...,minoverlap=minoverlap) #split tmp into res/typ
 	typ = tmp[,1]
 	res = apply(tmp[,2:ncol(tmp)], 2, as.numeric)
 	overlap = createOverlapMatrix(res,typ)
@@ -357,8 +359,10 @@ makeVennExample = function() {
 args <- parser$parse_args()
 files <- args$files
 names <- args$names
+weighted <- args$weighted
+minoverlap <- args$minoverlap
 if (length(names)!=length(files)) {
-cat ("## number of names are not the same as that of bed files, use 'bed_1' to 'bed_n' instead")
+cat ("## number of names are not the same as that of bed files, use 'bed_1' to 'bed_n' instead\n")
 names=paste("bed_",1:length(files),sep='')
 }
 
@@ -370,7 +374,7 @@ for (i in 1:length(files)) {
 }
 
 pdf(args$output,width=6,height=6)
-eval(parse(text=paste("makeVennRunall(",paste(names,collapse=','),",weighted=TRUE)",sep='')))
+eval(parse(text=paste("makeVennRunall(",paste(names,collapse=','),",weighted=",weighted,",minoverlap=",minoverlap,")",sep='')))
 #do.call(makeVennRunall,lst)
 dev.off()
 
