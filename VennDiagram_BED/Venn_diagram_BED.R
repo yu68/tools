@@ -370,7 +370,7 @@ names=paste("bed_",1:length(files),sep='')
 for (i in 1:length(files)) {
  #lst[[names[i]]]=peak2GRanges(files[i],)
  assign(names[i],peak2GRanges(files[i],))
- cat(as.name(names[i]))
+ cat("reading file: ",as.name(names[i]),'\n')
 }
 
 pdf(args$output,width=6,height=6)
