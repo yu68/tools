@@ -101,3 +101,26 @@ Options:
     -o,--output        the output figure file, can be format of emf, eps, pdf, png, ps, raw, rgba, svg, svgz
 
 ```
+
+#### random\_seq\_generator.py
+generate random sequences from genome specified (not exceeding the chromosome size boundary). One can adjust the mean and SD for size of  random sequences.
+
+```
+usage: random_seq_generator.py [-h] [-g GENOME] [-m MEAN] [-s SD] [-n NUM]
+
+generate random sequences with customized length and number (for random peaks
+et...)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -g GENOME, --genome GENOME
+                        specify genome name to get chromosome info from
+                        UCSCGB, default: mm9
+  -m MEAN, --mean MEAN  mean length of each random sequence,default:200
+  -s SD, --sd SD        sd of random sequence lengths,default:20
+  -n NUM, --num NUM     number of sequences to be randomly
+                        sampled,default:10000
+
+library dependency: cruzdb (https://github.com/brentp/cruzdb),sqlalchemy
+
+```
