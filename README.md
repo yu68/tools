@@ -104,12 +104,14 @@ Options:
 
 #### random\_seq\_generator.py
 generate random sequences from genome specified (not exceeding the chromosome size boundary). One can adjust the mean and SD for size of  random sequences.
+__probability to choose each chrom based on the size distribution.__
 
 ```
 usage: random_seq_generator.py [-h] [-g GENOME] [-m MEAN] [-s SD] [-n NUM]
 
 generate random sequences with customized length and number (for random peaks
 et...)
+probability to choose each chrom based on the size distribution
 
 optional arguments:
   -h, --help            show this help message and exit
