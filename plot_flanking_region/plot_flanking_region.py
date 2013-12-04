@@ -88,7 +88,7 @@ def get_count(interval,bam,r,l,fl,direction=False,win_l=3):
         count=np.zeros(int(2*l/r))
         center=int((i.start+i.stop)/2)
         if 'random' in i.chr: continue
-        for j in bam.fetch(i.chr,center-l-(half_len-75),center+l+(half_len+75)):
+        for j in bam.fetch(i.chr,center-l-(half_len),center+l+(half_len)):
             j_center=find_center(j,half_len)
             bin=int((j_center-center+l)/r)
             low_bound=min(int(2*l/r),max(0,bin-int(50/r)/2))

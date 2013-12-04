@@ -66,7 +66,7 @@ for i in ChIPseq_bam:
       fragmentLen.append(span)
       num=num+1
       if (num-1)%10000==0:
-        print "Processing:%dth~%dth read pairs"%(num,min(num+10000-1,total_num))
+        print >>sys.stderr,"Processing:%dth~%dth read pairs\r"%(num,min(num+10000-1,total_num)),
       if num==total_num:
         break
     except ValueError:
