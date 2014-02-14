@@ -28,7 +28,7 @@ def ParseArg():
     p.add_argument('-d','--direction',action='store_true',help='consider direction of each interval, useful for TSS around regions (default: False)')
     p.add_argument('-r','--resolution',type=int,default=5,help='the resolution for counting reads (default: 5)')
     p.add_argument('-l','--length',type=int,default=1000,help='the length extending from the center to both directions to be drawn (default: 1000)')
-    p.add_argument('-f','--frag_l',nargs='+',type=int,default=300,help='the average length of sequencing fragments, used to determine center location of each read (default: 300, 150 for MNase-seq)')
+    p.add_argument('-f','--frag_l',nargs='+',type=int,default=[300],help='the average length of sequencing fragments, used to determine center location of each read (default: 300, 150 for MNase-seq)')
     p.add_argument('-n','--bamname',nargs='+',dest='bamnames',type=str,help="names for the bam files to be shown on the figure")
     p.add_argument('-N','--intervalname',nargs='+',dest='intervalnames',type=str,help='names for the bam files to be shown on the figure')
     p.add_argument('-w','--win_l',type=int,default=3,help='smooth window length for counts in each interval, (default:3, no smooth)')
@@ -278,24 +278,39 @@ def main():
     if args.Average:
         print >> sys.stderr,"##  Start count reads"
         collect={}
+        y_max=0
         for k,nab in enumerate(bam_names):
-            for name in interval_names:
+            for j,name in enumerate(interval_names):
                 if k>=1:
-                    intervals[name]=TableIO.parse(args.intervals[0],'bed')
+                    intervals[name]=TableIO.parse(args.intervals[j],'bed')
                 print >> sys.stderr, "  ## counting for bam["+nab+"] - interval["+name+"]"
                 H_counts=get_count(intervals[name],bams[nab],resol,leng,frag_l[k],args.direction,args.win_l)
+                print H_counts.shape[0]
                 if name=='interval':
                     collect[nab]=np.sum(H_counts,axis=0)/H_counts.shape[0]*5E7/read_numbers[nab]
+                    y_max=max(y_max,max(collect[nab]))
                 else:
                     collect[(nab,name)]=np.sum(H_counts,axis=0)/H_counts.shape[0]*5E7/read_numbers[nab]
+                    y_max=max(y_max,max(collect[nab,name]))
         
-        fig=plt.figure()
-        for i,name in enumerate(collect.keys()):
-            col=matplotlib.cm.Paired((i+1)*1.0/(len(collect.keys())+2),1)
-            plt.plot(np.array(range(-leng,leng,resol))+resol/2.0,collect[name],color=col)
-        pylab.legend(collect.keys(),loc='upper right')
+        fig=plt.figure(figsize=(3*len(bam_names),4))
+        for i,nab in enumerate(bam_names):
+            if len(interval_names)>1:
+                ax = plt.subplot2grid((1,len(bam_names)),(0,i))
+                for j,name in enumerate(interval_names):
+                    col=matplotlib.cm.Paired((j+1)*1.0/(len(interval_names)+2),1)
+                    ax.plot(np.array(range(-leng,leng,resol))+resol/2.0,collect[(nab,name)],color=col)
+                ax.legend(interval_names,loc='upper right',prop={'size':15})
+                ax.set_ylim(0,y_max+1)
+                ax.set_title(nab)
+            else:
+                col=matplotlib.cm.Paired((i+1)*1.0/(len(interval_names)+2),1)
+                plt.plot(np.array(range(-leng,leng,resol))+resol/2.0,collect[nab],color=col)
+                plt.legend(nab,loc='upper right',prop = {'size':20})
+                plt.ylim(0,y_max+1)
         plt.xlabel('Distance to center')
         plt.ylabel('Average coverage for 5E7 reads')
+        plt.tight_layout()
         fig.savefig('average_'+args.output)
     
 

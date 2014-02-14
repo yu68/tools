@@ -4,6 +4,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import gaussian_kde
+from scipy.stats.mstats import mquantiles
 import scipy
 import pysam
 from getopt import getopt
@@ -81,6 +82,10 @@ xs = np.linspace(min_x,max_x,200)
 density.covariance_factor = lambda : lambd
 density._compute_covariance()
 print "KDE density computated"
+q1 = mquantiles(fragmentLen)[0]
+q2 = mquantiles(fragmentLen)[2]
+print "The 1/4 and 3/4 quantiles for length distribution is: "
+print "  [%d,%d]"%(int(q1),int(q2))
 plt.plot(xs,density(xs),label='KDE',color='r')
 plt.xlabel("Length")
 plt.ylabel("Density")
