@@ -15,6 +15,11 @@ import scipy.spatial.distance as dist
 import matplotlib.pyplot as plt
 from collections import Counter
 
+# font size
+from matplotlib.font_manager import FontProperties
+fontP = FontProperties()
+fontP.set_size('small')
+
 plt.ioff()
 
 def ParseArg():
@@ -88,6 +93,7 @@ def get_count(interval,bam,r,l,fl,direction=False,win_l=3):
         count=np.zeros(int(2*l/r))
         center=int((i.start+i.stop)/2)
         if 'random' in i.chr: continue
+        if i.chr=='chrM': continue
         for j in bam.fetch(i.chr,center-l-(half_len),center+l+(half_len)):
             j_center=find_center(j,half_len)
             bin=int((j_center-center+l)/r)
@@ -300,13 +306,13 @@ def main():
                 for j,name in enumerate(interval_names):
                     col=matplotlib.cm.Paired((j+1)*1.0/(len(interval_names)+2),1)
                     ax.plot(np.array(range(-leng,leng,resol))+resol/2.0,collect[(nab,name)],color=col)
-                ax.legend(interval_names,loc='upper right',prop={'size':15})
+                ax.legend(interval_names,loc='upper right',prop={'size':15},fontsize=10)
                 ax.set_ylim(0,y_max+1)
                 ax.set_title(nab)
             else:
                 col=matplotlib.cm.Paired((i+1)*1.0/(len(interval_names)+2),1)
                 plt.plot(np.array(range(-leng,leng,resol))+resol/2.0,collect[nab],color=col)
-                plt.legend(nab,loc='upper right',prop = {'size':20})
+                plt.legend(nab,loc='upper right')
                 plt.ylim(0,y_max+1)
         plt.xlabel('Distance to center')
         plt.ylabel('Average coverage for 5E7 reads')
