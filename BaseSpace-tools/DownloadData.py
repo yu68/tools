@@ -5,7 +5,7 @@ def ParseArg():
     p=argparse.ArgumentParser( description="")
     p.add_argument('-k','--key',type=str,default="4f7366779990451799fc491d4f6f51b5",help="the client_key, default: 4f7366779990451799fc491d4f6f51b5")
     p.add_argument('-s','--secret',type=str,default="c88e8c58e5814d04b3c662dc199693ab",help="the client_serect, default: c88e8c58e5814d04b3c662dc199693ab")
-    p.add_argument('-t','--token',type=str,default="639f9af2f031415cb89bfeef18716b72",help="the accessToken for the app, default: 639f9af2f031415cb89bfeef18716b72")
+    p.add_argument('-t','--token',type=str,default="639f9af2f031415cb89bfeef18716b72",help="the accessToken for the app [NECESSARY], default: 639f9af2f031415cb89bfeef18716b72")
     p.add_argument('-p','--project',type=str,required=True,help="query project full name.")
     p.add_argument('-d','--directory',type=str,default='./',help="download file folder, default: current folder")
     if len(sys.argv)==1:
@@ -22,9 +22,9 @@ def Main():
     BaseSpaceUrl = 'https://api.basespace.illumina.com/'
     myAPI = BaseSpaceAPI(client_key,client_secret,BaseSpaceUrl,"v1pre3","AA",token)
     user = myAPI.getUserById('current')
+    print >> sys.stderr, "\nUser name: %s\n"%(str(user))
     Projects = myAPI.getProjectByUser('current')
     Found = False
-    print >> sys.stderr, "\n"
     for p in Projects:
         if p.Name == args.project:
             print >>sys.stderr, "  Find project %s with ID: %s. "%(p.Name, p.Id)
