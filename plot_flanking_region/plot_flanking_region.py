@@ -306,14 +306,15 @@ def main():
                 for j,name in enumerate(interval_names):
                     col=matplotlib.cm.Paired((j+1)*1.0/(len(interval_names)+2),1)
                     ax.plot(np.array(range(-leng,leng,resol))+resol/2.0,collect[(nab,name)],color=col)
-                ax.legend(interval_names,loc='upper right',prop={'size':15},fontsize=10)
+                ax.legend(interval_names,loc='upper right')
                 ax.set_ylim(0,y_max+1)
                 ax.set_title(nab)
             else:
-                col=matplotlib.cm.Paired((i+1)*1.0/(len(interval_names)+2),1)
+                col=matplotlib.cm.Paired((i+1)*1.0/(len(bam_names)+2),1)
                 plt.plot(np.array(range(-leng,leng,resol))+resol/2.0,collect[nab],color=col)
-                plt.legend(nab,loc='upper right')
-                plt.ylim(0,y_max+1)
+        if len(interval_names)==1:
+            plt.legend(bam_names,bbox_to_anchor=(0., 0.95, 1., .100), loc=3, ncol=len(bam_names), mode="expand", borderaxespad=0.,fontsize=5)#,prop={'size':15},fontsize=10)
+            plt.ylim(0,y_max+1)
         plt.xlabel('Distance to center')
         plt.ylabel('Average coverage for 5E7 reads')
         plt.tight_layout()
