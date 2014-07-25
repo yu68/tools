@@ -6,7 +6,7 @@ import pysam
 from xplib.Annotation import Bed
 import sys,os,argparse
 import scipy.cluster.hierarchy as sch
-
+from collections import Counter
 import pylab
 from Bio.Cluster import somcluster
 from scipy.cluster.vq import kmeans,vq
@@ -224,7 +224,7 @@ def main():
             for l,name in enumerate(interval_names):
                 if k>=1:
                     intervals[name]=TableIO.parse(args.intervals[l],'bed')
-                print >> sys.stderr, "  ## counting for bam['"+nab+"] - interval["+name+"]"
+                print >> sys.stderr, "  ## counting for bam["+nab+"] - interval["+name+"]"
                 H_counts=get_count(intervals[name],bams[nab],resol,leng,frag_l[k],args.direction,args.win_l)
                 H_counts=H_counts*5E7/read_numbers[nab]
                 H_counts=np.log(H_counts+1)
@@ -233,6 +233,10 @@ def main():
                     if args.method_c=='kmeans':
                         centroids,_=kmeans(H_counts,5)
                         idx,_=vq(H_counts,centroids)
+                        print >> sys.stderr,"  ## size of clusters using kmeansfor bam["+nab+"] - interval["+name+"]: "
+                        cluster_size=Counter(idx)
+                        for c in cluster_size: 
+                            print >> sys.stderr,"   Cluster[%d]:%d"%(c,cluster_size[c])
                         order[name]=[i[0] for i in sorted(enumerate(idx), key=lambda x:x[1])]
                     elif args.method_c=='somcluster':
                         clusterid,_=somcluster(data=H_counts,nxgrid=5,nygrid=5)
@@ -266,7 +270,7 @@ def main():
             j=j+1
         fig.savefig('heatmap_'+args.output)
 
-        '''
+        
         # print clustering information for first bam
         cluster_info=open("interval_with_cluster.txt",'w')
         name=interval_names[-1]
@@ -279,7 +283,7 @@ def main():
             except:
                 print "Error: the number of intervals are not consistent" 
             n=n+1
-        '''         
+                
     # draw averge patterns
     if args.Average:
         print >> sys.stderr,"##  Start count reads"
