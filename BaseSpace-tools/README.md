@@ -4,6 +4,8 @@ BaseSpace-tools
 Install "basespace-python-sdk" first from this link:  
 https://developer.basespace.illumina.com/docs/content/documentation/sdk-samples/python-sdk-overview
 
+Get your accessToken by folowing the steps 1-5 from this link:
+https://support.basespace.illumina.com/knowledgebase/articles/403618-python-run-downloader
 
 #### DownloadData.py
 download sequencing data from BaseSpace account, need your aceesToken and project name (the client\_key and client\_secret are not necessary)
