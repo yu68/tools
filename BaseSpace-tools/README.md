@@ -27,5 +27,5 @@ optional arguments:
   -p PROJECT, --project PROJECT
                         query project full name.
   -d DIRECTORY, --directory DIRECTORY
-                        download file folder, default: current folder
+                        local download file folder, default: current folder
 ``` 
