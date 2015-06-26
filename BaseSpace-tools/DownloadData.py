@@ -23,7 +23,7 @@ def Main():
     myAPI = BaseSpaceAPI(client_key,client_secret,BaseSpaceUrl,"v1pre3","AA",token)
     user = myAPI.getUserById('current')
     print >> sys.stderr, "\nUser name: %s\n"%(str(user))
-    Projects = myAPI.getProjectByUser('current')
+    Projects = myAPI.getProjectByUser()
     Found = False
     for p in Projects:
         if p.Name == args.project:
