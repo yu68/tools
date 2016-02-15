@@ -1,5 +1,7 @@
 from BaseSpacePy.api.BaseSpaceAPI import BaseSpaceAPI
 import argparse,sys,os
+from BaseSpacePy.model.QueryParameters import QueryParameters as qp
+listOptions = qp({ 'Limit': 1024})
 
 def ParseArg():
     p=argparse.ArgumentParser( description="")
@@ -23,7 +25,7 @@ def Main():
     myAPI = BaseSpaceAPI(client_key,client_secret,BaseSpaceUrl,"v1pre3","AA",token)
     user = myAPI.getUserById('current')
     print >> sys.stderr, "\nUser name: %s\n"%(str(user))
-    Projects = myAPI.getProjectByUser()
+    Projects = myAPI.getProjectByUser(listOptions)
     Found = False
     for p in Projects:
         if p.Name == args.project:
@@ -33,13 +35,15 @@ def Main():
             break
     if not Found: 
         print >>sys.stderr, "  Could not find project %s, from user %s, please check your token." %(args.project,str(user))
+        print >>sys.stderr, "  Here is a list of all your projects:"
+        print >>sys.stderr, '\n'.join(["    %s"%(p.Name) for p in Projects])
         sys.exit(0)
 
-    Samples=Project.getSamples(myAPI)
+    Samples=Project.getSamples(myAPI,listOptions)
     print >> sys.stderr, "Samples for this project: " + str(Samples)
     for s in Samples:
         print >>sys.stderr,"  Downloading files in sample " + str(s)
-        subfolder=folder+"/"+str(s)
+        subfolder=folder+"/"+args.project
         if not os.path.exists(subfolder):
             os.makedirs(subfolder)
         for f in s.getFiles(myAPI):
